@@ -60,6 +60,7 @@ def replace_application_in(applications_dir, always_yes = False, skip_app_from_a
         except Exception, e:
             send2trash_failed.append(os.path.join(applications_dir, application))
             print('Send {0} to trash fail with {1}'.format(application, e))
+    print('Not replaced: {0}'.format([x for x in applications if x not in installed_failed]))
     print('Installed failed: {0}'.format(installed_failed))
     print('Send to trash failed: {0}'.format(send2trash_failed))
 
