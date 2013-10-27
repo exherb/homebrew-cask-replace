@@ -3,6 +3,7 @@
 
 import sys
 import os
+import commands
 import urllib2
 import json
 from send2trash import send2trash
@@ -10,11 +11,18 @@ from send2trash import send2trash
 _CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
+def is_installed_by_appstore(application_path):
+    output = commands.getoutput('codesign -dvvv "{0}"'.format(application_path))
+    return output.find('Authority=Apple Mac OS Application Signing') > 0
+
 def replace_application_in(applications_dir, always_yes = False):
     installed_failed = []
     send2trash_failed = []
     applications = os.listdir(applications_dir)
     for application in applications:
+        application_path = os.path.join(applications_dir, application)
+        if is_installed_by_appstore(application_path):
+            continue
         application_name, ext = os.path.splitext(application)
         if ext.lower() != '.app':
             continue
