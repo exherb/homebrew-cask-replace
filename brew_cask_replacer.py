@@ -10,7 +10,7 @@ from send2trash import send2trash
 _CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
-def collect_applications(applications_dir):
+def replace_application_in(applications_dir):
     applications = os.listdir(applications_dir)
     for application in applications:
         application_name, ext = os.path.splitext(application)
@@ -42,13 +42,17 @@ def collect_applications(applications_dir):
         status = os.system('brew cask install {0}'.format(application_name))
         if status != 0:
             print('Install {0} fail'.format(application))
-        send2trash(os.path.join(applications_dir, application))
+        try:
+            send2trash(os.path.join(applications_dir, application))
+        except Exception, e:
+            print('Send {0} to trash fail with {1}'.format(application, e))
+
 
 def main():
     applications_dir = '/Applications'
     if len(sys.argv) > 1:
         applications_dir = sys.argv[1]
-    collect_applications(applications_dir)
+    replace_application_in(applications_dir)
 
 if __name__ == '__main__':
     main()
