@@ -11,6 +11,8 @@ _CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
 def replace_application_in(applications_dir, always_yes = False):
+    installed_failed = []
+    send2trash_failed = []
     applications = os.listdir(applications_dir)
     for application in applications:
         application_name, ext = os.path.splitext(application)
@@ -42,12 +44,16 @@ def replace_application_in(applications_dir, always_yes = False):
                 continue
         status = os.system('brew cask install {0}'.format(application_name))
         if status != 0:
+            installed_failed.append(application)
             print('Install {0} fail'.format(application))
             continue
         try:
             send2trash(os.path.join(applications_dir, application))
         except Exception, e:
+            send2trash_failed.append(os.path.join(applications_dir, application))
             print('Send {0} to trash fail with {1}'.format(application, e))
+    print('Installed failed: {0}'.format(installed_failed))
+    print('Send to trash failed: {0}'.format(send2trash_failed))
 
 def main():
     applications_dir = '/Applications'
