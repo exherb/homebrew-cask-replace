@@ -10,7 +10,7 @@ from send2trash import send2trash
 _CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
-def replace_application_in(applications_dir):
+def replace_application_in(applications_dir, always_yes = False):
     applications = os.listdir(applications_dir)
     for application in applications:
         application_name, ext = os.path.splitext(application)
@@ -34,10 +34,12 @@ def replace_application_in(applications_dir):
             application_info[key] = key_value[1]
         print('{0} -> {1}'.format(application, json.dumps(application_info,
             indent=4, separators=(',', ': '))))
-        replace_it = raw_input('Replace It(Y/n):')
-        replace_it = replace_it.lower()
-        if len(replace_it) > 0 and replace_it != 'y' and replace_it != 'yes':
-            continue
+
+        if not always_yes:
+            replace_it = raw_input('Replace It(Y/n):')
+            replace_it = replace_it.lower()
+            if len(replace_it) > 0 and replace_it != 'y' and replace_it != 'yes':
+                continue
         status = os.system('brew cask install {0}'.format(application_name))
         if status != 0:
             print('Install {0} fail'.format(application))
@@ -47,12 +49,14 @@ def replace_application_in(applications_dir):
         except Exception, e:
             print('Send {0} to trash fail with {1}'.format(application, e))
 
-
 def main():
     applications_dir = '/Applications'
+    always_yes = '-y' in sys.argv
+    if always_yes:
+        sys.argv.remove('-y')
     if len(sys.argv) > 1:
         applications_dir = sys.argv[1]
-    replace_application_in(applications_dir)
+    replace_application_in(applications_dir, always_yes)
 
 if __name__ == '__main__':
     main()
