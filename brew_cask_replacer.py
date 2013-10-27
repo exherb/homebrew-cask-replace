@@ -7,7 +7,7 @@ import urllib2
 import json
 from send2trash import send2trash
 
-_CASK_ROOT = 'https://raw.github.com/phinze/homebrew-cask/master/Casks/'
+_CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
 def collect_applications(applications_dir):
@@ -19,7 +19,7 @@ def collect_applications(applications_dir):
         application_name = application_name.lower()
         application_name = '-'.join(application_name.split())
         try:
-            application_info_file = urllib2.urlopen(_CASK_ROOT + application_name + '.rb')
+            application_info_file = urllib2.urlopen(_CASKS_HOME + application_name + '.rb')
         except Exception, e:
             continue
 
