@@ -22,7 +22,6 @@ def replace_application_in(applications_dir):
             application_info_file = urllib2.urlopen(_CASKS_HOME + application_name + '.rb')
         except Exception, e:
             continue
-
         application_info = {}
         for line in application_info_file:
             line = line.strip()
@@ -42,6 +41,7 @@ def replace_application_in(applications_dir):
         status = os.system('brew cask install {0}'.format(application_name))
         if status != 0:
             print('Install {0} fail'.format(application))
+            continue
         try:
             send2trash(os.path.join(applications_dir, application))
         except Exception, e:
