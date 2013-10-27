@@ -2,6 +2,8 @@
 
 use homebrew cask to replace installed apps
 
+![screenshot](screenshot.png)
+
 ## usage
 
 ```bash
