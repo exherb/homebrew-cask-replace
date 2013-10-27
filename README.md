@@ -12,9 +12,10 @@ pip install -r requirements.txt
 python brew_cask_replacer.py
 
 ```
-## how
+## how it works
 
+* check is {application} from Appstore [-f turnoff]
 * check http://raw.github.com/phinze/homebrew-cask/master/Casks/{application} is exist
-* print application info and check if you want to replace it with brew cask
+* print application info and check if you want to replace it with brew cask [-y turnoff]
 * install application using 'brew cask install {application}'
 * send {application_path} to trash (may fail)
