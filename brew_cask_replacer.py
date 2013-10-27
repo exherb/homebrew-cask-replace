@@ -15,13 +15,13 @@ def is_installed_by_appstore(application_path):
     output = commands.getoutput('codesign -dvvv "{0}"'.format(application_path))
     return output.find('Authority=Apple Mac OS Application Signing') > 0
 
-def replace_application_in(applications_dir, always_yes = False):
+def replace_application_in(applications_dir, always_yes = False, skip_app_from_appstore = True):
     installed_failed = []
     send2trash_failed = []
     applications = os.listdir(applications_dir)
     for application in applications:
         application_path = os.path.join(applications_dir, application)
-        if is_installed_by_appstore(application_path):
+        if skip_app_from_appstore and is_installed_by_appstore(application_path):
             continue
         application_name, ext = os.path.splitext(application)
         if ext.lower() != '.app':
@@ -68,9 +68,13 @@ def main():
     always_yes = '-y' in sys.argv
     if always_yes:
         sys.argv.remove('-y')
+    skip_app_from_appstore = True
+    if '-f' in sys.argv:
+        sys.argv.remove('-f')
+        skip_app_from_appstore = False
     if len(sys.argv) > 1:
         applications_dir = sys.argv[1]
-    replace_application_in(applications_dir, always_yes)
+    replace_application_in(applications_dir, always_yes, skip_app_from_appstore)
 
 if __name__ == '__main__':
     main()
