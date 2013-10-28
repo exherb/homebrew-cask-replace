@@ -6,6 +6,7 @@ import os
 import commands
 import urllib2
 import json
+import re
 from send2trash import send2trash
 
 _CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
@@ -14,6 +15,19 @@ _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 def is_installed_by_appstore(application_path):
     output = commands.getoutput('codesign -dvvv "{0}"'.format(application_path))
     return output.find('Authority=Apple Mac OS Application Signing') > 0
+
+def format_application_name(application_name):
+    pos = []
+    for i in range(len(application_name)):
+        char = application_name[i]
+        if i == 0 or (application_name[i].isupper() and not application_name[i - 1].isupper()):
+            pos.append(i)
+    pos.append(len(application_name))
+
+    parts = [application_name[pos[j]:pos[j+1]] for j in xrange(len(pos) - 1)]
+    parts = [part.strip() for part in parts if len(part.strip()) > 0]
+    application_name = '-'.join(parts)
+    return application_name.lower()
 
 def replace_application_in(applications_dir, always_yes = False, skip_app_from_appstore = True):
     installed_failed = []
@@ -27,14 +41,16 @@ def replace_application_in(applications_dir, always_yes = False, skip_app_from_a
         application_name, ext = os.path.splitext(application)
         if ext.lower() != '.app':
             continue
-        application_name = application_name.lower()
-        application_name = '-'.join(application_name.split())
+
+        application_name = format_application_name(application_name)
         try:
             cask_url = _CASKS_HOME + application_name + '.rb'
             application_info_file = urllib2.urlopen(cask_url, timeout = 3)
-        except urllib2.HTTPError, e:
-            if e.code != 404:
-                print('Get {0} info failed with {1}'.format(application,  e))
+        except Exception, e:
+            if isinstance(e, urllib2.HTTPError):
+                if e.code == 404:
+                    continue
+            print('Get {0} info failed with {1}'.format(application,  e))
             continue
         application_info = {}
         for line in application_info_file:
@@ -48,7 +64,6 @@ def replace_application_in(applications_dir, always_yes = False, skip_app_from_a
             application_info[key] = key_value[1]
         print('{0} -> {1}'.format(application, json.dumps(application_info,
             indent=4, separators=(',', ': '))))
-
         if not always_yes:
             replace_it = raw_input('Replace It(Y/n):')
             replace_it = replace_it.lower()
