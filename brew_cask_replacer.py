@@ -22,6 +22,7 @@ def replace_application_in(applications_dir, always_yes = False, skip_app_from_a
     for application in applications:
         application_path = os.path.join(applications_dir, application)
         if skip_app_from_appstore and is_installed_by_appstore(application_path):
+            print('Skip {0} from Appstore'.format(application))
             continue
         application_name, ext = os.path.splitext(application)
         if ext.lower() != '.app':
@@ -29,8 +30,11 @@ def replace_application_in(applications_dir, always_yes = False, skip_app_from_a
         application_name = application_name.lower()
         application_name = '-'.join(application_name.split())
         try:
-            application_info_file = urllib2.urlopen(_CASKS_HOME + application_name + '.rb')
-        except Exception, e:
+            cask_url = _CASKS_HOME + application_name + '.rb'
+            application_info_file = urllib2.urlopen(cask_url, timeout = 3)
+        except urllib2.HTTPError, e:
+            if e.code != 404:
+                print('Get {0} info failed with {1}'.format(application,  e))
             continue
         application_info = {}
         for line in application_info_file:
