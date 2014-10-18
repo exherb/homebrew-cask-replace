@@ -33,7 +33,8 @@ def format_application_name(application_name):
     pos.append(len(application_name))
 
     parts = [application_name[pos[j]:pos[j+1]] for j in range(len(pos) - 1)]
-    parts = [part.strip() for part in parts if len(part.strip()) > 0]
+    parts = [part.strip() for part in parts
+             if len(part.strip()) > 0]
     application_name = '-'.join(parts)
     return application_name.lower()
 
@@ -73,7 +74,7 @@ def replace_application_in(applications_dir,
             key = key_value[0]
             if key not in _PROPERTY_NAMES:
                 continue
-            application_info[key] = key_value[1]
+            application_info[key] = key_value[1].strip('\'\":')
         print('{0} -> {1}'.format(application, json.dumps(application_info,
                                   indent=4, separators=(',', ': '))))
         if not always_yes:
@@ -94,9 +95,12 @@ def replace_application_in(applications_dir,
                                                   application))
             print('Send {0} to trash fail with {1}'.format(application, e))
     not_replaced = [x for x in applications if x not in installed_failed]
-    print('Not replaced: {0}'.format(not_replaced))
-    print('Installed failed: {0}'.format(installed_failed))
-    print('Send to trash failed: {0}'.format(send2trash_failed))
+    for x in not_replaced:
+        print('Not replaced: {0}'.format(x))
+    for x in installed_failed:
+        print('Installed failed: {0}'.format(x))
+    for x in send2trash_failed:
+        print('Send to trash failed: {0}'.format(x))
 
 
 def main():
