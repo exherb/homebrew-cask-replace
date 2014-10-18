@@ -8,7 +8,12 @@ import urllib2
 import json
 from send2trash import send2trash
 
-_CASKS_HOME = 'http://raw.github.com/phinze/homebrew-cask/master/Casks/'
+try:
+    input = raw_input
+except NameError:
+    pass
+
+_CASKS_HOME = 'http://raw.github.com/caskroom/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
 
 
@@ -72,7 +77,7 @@ def replace_application_in(applications_dir,
         print('{0} -> {1}'.format(application, json.dumps(application_info,
                                   indent=4, separators=(',', ': '))))
         if not always_yes:
-            replace_it = raw_input('Replace It(Y/n):')
+            replace_it = input('Replace It(Y/n):')
             replace_it = replace_it.lower()
             if len(replace_it) > 0 and replace_it != 'y' and\
                replace_it != 'yes':
