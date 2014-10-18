@@ -24,24 +24,13 @@ def is_installed_by_appstore(application_path):
 
 
 def format_application_name(application_name):
-    pos = []
-    for i in range(len(application_name)):
-        if i == 0 or\
-           (application_name[i].isupper() and
-                not application_name[i - 1].isupper()):
-            pos.append(i)
-    pos.append(len(application_name))
-
-    parts = [application_name[pos[j]:pos[j+1]] for j in range(len(pos) - 1)]
-    parts = [part.strip() for part in parts
-             if len(part.strip()) > 0]
-    application_name = '-'.join(parts)
-    return application_name.lower()
+    return '-'.join([x for x in application_name.split()]).lower()
 
 
 def replace_application_in(applications_dir,
                            always_yes=False,
                            skip_app_from_appstore=True):
+    not_founded = []
     installed_failed = []
     send2trash_failed = []
     applications = os.listdir(applications_dir)
@@ -60,6 +49,7 @@ def replace_application_in(applications_dir,
             cask_url = _CASKS_HOME + application_name + '.rb'
             application_info_file = urllib2.urlopen(cask_url, timeout=3)
         except Exception as e:
+            not_founded.append(application)
             if isinstance(e, urllib2.HTTPError):
                 if e.code == 404:
                     continue
@@ -86,16 +76,13 @@ def replace_application_in(applications_dir,
         status = os.system('brew cask install {0}'.format(application_name))
         if status != 0:
             installed_failed.append(application)
-            print('Install {0} fail'.format(application))
-            continue
-        try:
-            send2trash(os.path.join(applications_dir, application))
-        except Exception as e:
-            send2trash_failed.append(os.path.join(applications_dir,
-                                                  application))
-            print('Send {0} to trash fail with {1}'.format(application, e))
-    not_replaced = [x for x in applications if x not in installed_failed]
-    for x in not_replaced:
+        else:
+            try:
+                send2trash(os.path.join(applications_dir, application))
+            except Exception as e:
+                send2trash_failed.append(os.path.join(applications_dir,
+                                                      application))
+    for x in not_founded:
         print('Not replaced: {0}'.format(x))
     for x in installed_failed:
         print('Installed failed: {0}'.format(x))
