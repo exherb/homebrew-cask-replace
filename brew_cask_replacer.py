@@ -15,6 +15,18 @@ except NameError:
 
 _CASKS_HOME = 'http://raw.github.com/caskroom/homebrew-cask/master/Casks/'
 _PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
+_DIGITAL_TO_ENGLISH_ = {
+    0: 'zero',
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+}
 
 
 def is_installed_by_appstore(application_path):
@@ -24,17 +36,35 @@ def is_installed_by_appstore(application_path):
 
 
 def format_application_name(application_name):
-    return '-'.join([x for x in application_name.split()]).lower()
+    name = '-'.join([x for x in application_name.split()]).lower()
+    try:
+        digital = int(name[0])
+        name[0] = _DIGITAL_TO_ENGLISH_[digital]
+    except Exception:
+        pass
+    return name
 
 
 def replace_application_in(applications_dir,
                            always_yes=False,
                            skip_app_from_appstore=True):
+    ignores = set()
+    ignore_file_path = os.path.join(os.path.dirname(__file__), 'ignore.txt')
+    if os.path.exists(ignore_file_path):
+        with open(ignore_file_path, 'r') as f:
+            for line in f:
+                if not line:
+                    continue
+                if line[0] == '#':
+                    continue
+                ignores.add(line.strip())
     not_founded = []
     installed_failed = []
     send2trash_failed = []
     applications = os.listdir(applications_dir)
     for application in applications:
+        if application in ignores:
+            continue
         application_path = os.path.join(applications_dir, application)
         if skip_app_from_appstore and\
            is_installed_by_appstore(application_path):

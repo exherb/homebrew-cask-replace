@@ -1,0 +1,41 @@
+# System
+App Store.app
+Assistant.app
+Automator.app
+Calculator.app
+Calendar.app
+Chess.app
+Contacts.app
+Dashboard.app
+Designer.app
+Dictionary.app
+FaceTime.app
+Font Book.app
+Game Center.app
+iBooks.app
+IDLE.app
+Image Capture.app
+iTunes.app
+Launchpad.app
+Mail.app
+Maps.app
+Messages.app
+Mission Control.app
+Notes.app
+Preview.app
+QuickTime Player.app
+Reminders.app
+Safari.app
+Stickies.app
+System Preferences.app
+TextEdit.app
+Time Machine.app
+
+# Python
+Wrapper.app
+Python Launcher.app
+QMLViewer.app
+qttracereplay.app
+Linguist.app
+
+# Game
