@@ -6,6 +6,7 @@ import os
 import commands
 import urllib2
 import json
+import string
 from send2trash import send2trash
 
 try:
@@ -37,12 +38,9 @@ def is_installed_by_appstore(application_path):
 
 def format_application_name(application_name):
     name = '-'.join([x for x in application_name.split()]).lower()
-    try:
-        digital = int(name[0])
-        name[0] = _DIGITAL_TO_ENGLISH_[digital]
-    except Exception:
-        pass
-    return name
+    if name[0].isdigit():
+        name[0] = _DIGITAL_TO_ENGLISH_[int(name[0])]
+    return name.strip(string.digits)
 
 
 def replace_application_in(applications_dir,

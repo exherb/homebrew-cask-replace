@@ -30,6 +30,8 @@ Stickies.app
 System Preferences.app
 TextEdit.app
 Time Machine.app
+DVD Player.app
+Photo Booth.app
 
 # Python
 Wrapper.app
