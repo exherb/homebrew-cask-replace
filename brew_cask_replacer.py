@@ -39,7 +39,7 @@ def is_installed_by_appstore(application_path):
 def format_application_name(application_name):
     name = '-'.join([x for x in application_name.split()]).lower()
     if name[0].isdigit():
-        name[0] = _DIGITAL_TO_ENGLISH_[int(name[0])]
+        name = _DIGITAL_TO_ENGLISH_[int(name[0])] + name[1:]
     return name.strip(string.digits)
 
 
