@@ -16,7 +16,7 @@ except NameError:
     pass
 
 _CASKS_HOME = 'http://raw.github.com/caskroom/homebrew-cask/master/Casks/'
-_PROPERTY_NAMES = ['url', 'homepage', 'version', 'link']
+_PROPERTY_NAMES = ['url', 'homepage', 'name', 'version', 'app', 'pkg']
 _DIGITAL_TO_ENGLISH_ = {
     0: 'zero',
     1: 'one',
