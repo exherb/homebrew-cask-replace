@@ -3,6 +3,7 @@
 
 import sys
 import os
+import argparse
 import commands
 import urllib2
 import json
@@ -118,20 +119,22 @@ def replace_application_in(applications_dir,
         print('Send to trash failed: {0}'.format(x))
 
 
-def main():
-    applications_dir = '/Applications'
-    always_yes = '-y' in sys.argv
-    if always_yes:
-        sys.argv.remove('-y')
-    skip_app_from_appstore = True
-    if '-f' in sys.argv:
-        sys.argv.remove('-f')
-        skip_app_from_appstore = False
-    if len(sys.argv) > 1:
-        applications_dir = sys.argv[1]
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('appdir', nargs='?', default='/Applications',
+                        help='''the applications directory to search
+                        (/Applications by default)''')
+    parser.add_argument('-y', '--always-yes', action='store_true',
+                        help='replace all with homebrew-cask')
+    parser.add_argument('-f', '--include-appstore', action='store_true',
+                        help='include apps in the Mac App Store')
+    args = parser.parse_args(argv)
+    applications_dir = args.appdir
+    always_yes = args.always_yes
+    skip_app_from_appstore = not args.include_appstore
     replace_application_in(applications_dir, always_yes,
                            skip_app_from_appstore)
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
