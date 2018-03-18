@@ -3,6 +3,7 @@
 
 import sys
 import os
+import pdb
 import argparse
 import commands
 import urllib2
@@ -95,22 +96,25 @@ def replace_application_in(applications_dir,
                 continue
             application_info = application_info_file.read()
             print('{0} -> {1}'.format(application, application_info))
+            pdb.set_trace()
             if not always_yes:
                 replace_it = input('Replace It(Y/n):')
                 replace_it = replace_it.lower()
                 if len(replace_it) > 0 and replace_it != 'y' and\
                    replace_it != 'yes':
                     continue
-            status = os.system('brew cask install {0}'.
-                               format(application_name))
-            if status != 0:
-                installed_failed.append(application)
+            trash_status = os.system(send2trash(os.path.join(applications_dir, application)))
+            if trash_status != 0:
+                send2trash_failed.append(os.path.join(applications_dir,
+                                                      application))
+                print('{0} replace failed')
             else:
-                try:
-                    send2trash(os.path.join(applications_dir, application))
-                except Exception:
-                    send2trash_failed.append(os.path.join(applications_dir,
-                                                          application))
+                print('{0} successfully sent to trash, now reinstalling via brew')
+                status = os.system('brew cask install {0}'.
+                               format(application_name))
+                if status != 0:
+                    installed_failed.append(application)
+                    print('{0} brew installation failed. Please try to install using the command:\n"brew cask install {0}".\nIf that fails please reinstall manually')
     finally:
         for x in not_founded:
             print('Not found: {0}'.format(x))
