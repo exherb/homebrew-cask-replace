@@ -8,8 +8,8 @@ use homebrew cask to replace installed apps
 
 ```bash
 
-pip install -r requirements.txt
-python brew_cask_replacer.py
+pip2 install -r requirements.txt
+python2 brew_cask_replacer.py
 
 ```
 ## how it works
