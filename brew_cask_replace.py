@@ -4,7 +4,6 @@
 import sys
 import os
 import argparse
-import commands
 import urllib2
 import subprocess
 from send2trash import send2trash
@@ -33,7 +32,7 @@ def parse_ignores(ignore_file_path):
 
 def is_installed_by_appstore(application_path):
     cmd = 'codesign -dvvv "{0}"'.format(application_path)
-    output = commands.getoutput(cmd)
+    output = subprocess.check_output(cmd, shell=True)
     return output.find('Authority=Apple Mac OS Application Signing') > 0
 
 
