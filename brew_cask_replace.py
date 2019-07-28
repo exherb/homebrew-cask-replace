@@ -43,7 +43,7 @@ def generate_cask_token(application_path, application_name):
     brew_location, err = p.communicate()
     brew_location = brew_location.strip()
     if len(brew_location):
-        p = subprocess.Popen([brew_location + '/Library/Taps/caskroom/' +
+        p = subprocess.Popen([brew_location + '/Library/Taps/homebrew/' +
                               'homebrew-cask/developer/bin/' +
                               'generate_cask_token',
                               application_path], stdout=subprocess.PIPE,
