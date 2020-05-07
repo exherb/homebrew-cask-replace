@@ -3,8 +3,7 @@
 import sys
 import os
 import argparse
-import commands
-import urllib2
+import requests
 import subprocess
 from send2trash import send2trash
 
@@ -48,7 +47,7 @@ def parse_ignorescask(ignorecask_file_path):
 
 def is_installed_by_appstore(application_path):
     cmd = 'codesign -dvvv "{0}"'.format(application_path)
-    output = commands.getoutput(cmd)
+    output = subprocess.getoutput(cmd)
     return output.find('Authority=Apple Mac OS Application Signing') > 0
 
 
@@ -58,7 +57,7 @@ def generate_cask_token(application_path, application_name):
         ['brew', '--repository'], stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     brew_location, err = p.communicate()
-    brew_location = brew_location.strip()
+    brew_location = brew_location.decode('utf-8').strip()
     if len(brew_location):
         p = subprocess.Popen(
             [
@@ -72,7 +71,7 @@ def generate_cask_token(application_path, application_name):
             stderr=subprocess.PIPE,
         )
         out, err = p.communicate()
-        for line in out.split('\n'):
+        for line in out.decode('utf-8').split('\n'):
             key, value = line.split(':')
             key = key.strip()
             if key == 'Proposed token':
@@ -93,6 +92,8 @@ def replace_application_in(
     not_founded = []
     installed_failed = []
     send2trash_failed = []
+    choose_no = []
+    skipAppstore = []
     try:
         applications = os.listdir(applications_dir)
         for application in applications:
@@ -102,6 +103,7 @@ def replace_application_in(
             application_path = os.path.join(applications_dir, application)
             if skip_app_from_appstore and is_installed_by_appstore(application_path):
                 print('Skip {0} from Appstore'.format(application))
+                skipAppstore.append(application)
                 continue
 
             application_name, ext = os.path.splitext(application)
@@ -110,12 +112,16 @@ def replace_application_in(
             application_name = generate_cask_token(application_path, application_name)
             try:
                 cask_url = _CASKS_HOME + application_name + '.rb'
-                application_info_file = urllib2.urlopen(cask_url, timeout=3)
+                application_info_file = requests.get(cask_url, timeout=3)
             except Exception:
                 not_founded.append(application)
                 continue
 
-            application_info = application_info_file.read()
+            if application_info_file.status_code == 200:
+                application_info = application_info_file.text
+            else:
+                not_founded.append(application)
+                continue
 
             cask = application_info[application_info.find("'")+1:].split()[0]
             caskapp = cask.strip('\'"')
@@ -128,6 +134,7 @@ def replace_application_in(
                 replace_it = input('Replace It(Y/n):')
                 replace_it = replace_it.lower()
                 if len(replace_it) > 0 and replace_it != 'y' and replace_it != 'yes':
+                    choose_no.append(application)
                     continue
 
                 try:
@@ -154,6 +161,29 @@ def replace_application_in(
             print('Installed fail: {0}'.format(x))
         for x in send2trash_failed:
             print('Send to trash fail: {0}'.format(x))
+        with open('brew_cask_replace_log.txt', 'w') as f:
+            f.write('Ignored by user-defined ignore.txt]\n')
+            for x in ignores:
+                f.write("{}\n".format(x))
+            f.write('\n[AppStore managed and skipped]\n')
+            for x in skipAppstore:
+                f.write("{}\n".format(x))
+            f.write('\n[Already managed by brew cask]\n')
+            for x in ignorescask:
+                f.write("{}\n".format(x))
+            f.write('\n[User chose not to replace]\n')
+            for x in choose_no:
+                f.write("{}\n".format(x))
+            f.write('\n[Not found on brew cask]\n')
+            for x in not_founded:
+                f.write("{}\n".format(x))
+            f.write('\n[Failed to send to trash (permission issue likely)]\n')
+            for x in send2trash_failed:
+                f.write("{}\n".format(x))
+            f.write('\n[Install failed]\n')
+            for x in installed_failed:
+                f.write("{}\n".format(x))
+        print('Log saved to brew_cask_replace_log.txt')
 
 
 def main(argv):
