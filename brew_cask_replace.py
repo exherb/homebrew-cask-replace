@@ -87,7 +87,7 @@ def generate_cask_token(application_path, application_name):
 def replace_application_in(
     applications_dir, always_yes=False, skip_app_from_appstore=True
 ):
-    os.system('brew cask list > ignorecask.txt')
+    os.system('brew list --cask > ignorecask.txt')
     ignores = parse_ignores(os.path.join(os.path.dirname(__file__), 'ignore.txt'))
     ignorescask = parse_ignorescask(os.path.join(os.path.dirname(__file__), 'ignorecask.txt'))
     not_founded = []
@@ -139,11 +139,11 @@ def replace_application_in(
                     print('\n{0} replace failed \n'.format(application_name))
                 else:
                     print('\n{0} successfully sent to trash, now reinstalling via brew \n'.format(application_name))
-                    status = os.system('brew cask install {0}'.format(application_name))
+                    status = os.system('brew install --cask {0}'.format(application_name))
                     if status != 0:
                         installed_failed.append(application)
                         print(
-                            '{0} brew installation failed. Please try to install using the command:\n"brew cask install {0}".\nIf that fails please reinstall manually'.format(application_name)
+                            '{0} brew installation failed. Please try to install using the command:\n"brew install --cask {0}".\nIf that fails please reinstall manually'.format(application_name)
                         )
                     else:
                         print('{0} successfully reinstalled with cask.\n'.format(application_name))
